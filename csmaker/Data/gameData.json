@@ -1,0 +1,22 @@
+{
+  "Players": [
+    {
+      "Nickname": "s1mple",
+      "Country": "UA",
+      "TeamName": "Natus Vincere"
+    },
+    {
+      "Nickname": "NiKo",
+      "Country": "BA",
+      "TeamName": "Natus Vincere"
+    }
+  ],
+  "Teams": [
+    {
+      "Name": "Natus Vincere"
+    },
+    {
+      "Name": "Falcons"
+    }
+  ]
+}
