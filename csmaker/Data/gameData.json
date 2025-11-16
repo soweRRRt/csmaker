@@ -1,22 +1,86 @@
 {
   "Players": [
     {
-      "Nickname": "s1mple",
-      "Country": "UA",
-      "TeamName": "Natus Vincere"
+      "Nickname": "soweRt",
+      "Country": "RU",
+      "TeamName": "Dream Wave"
     },
     {
-      "Nickname": "NiKo",
-      "Country": "BA",
-      "TeamName": "Natus Vincere"
+      "Nickname": "Neajez",
+      "Country": "RU",
+      "TeamName": "Dream Wave"
+    },
+    {
+      "Nickname": "Tw1sez",
+      "Country": "RU",
+      "TeamName": "Dream Wave"
+    },
+    {
+      "Nickname": "KruN1k",
+      "Country": "RU",
+      "TeamName": "Dream Wave"
+    },
+    {
+      "Nickname": "Der3ct",
+      "Country": "RU",
+      "TeamName": "Dream Wave"
+    },
+    {
+      "Nickname": "karrigan",
+      "Country": "DK",
+      "TeamName": "FaZe"
+    },
+    {
+      "Nickname": "frozen",
+      "Country": "SK",
+      "TeamName": "FaZe"
+    },
+    {
+      "Nickname": "Twistzz",
+      "Country": "CA",
+      "TeamName": "FaZe"
+    },
+    {
+      "Nickname": "broky",
+      "Country": "LV",
+      "TeamName": "FaZe"
+    },
+    {
+      "Nickname": "jcobbb",
+      "Country": "PL",
+      "TeamName": "FaZe"
     }
   ],
   "Teams": [
     {
-      "Name": "Natus Vincere"
+      "Name": "Dream Wave",
+      "VrsRating": 1111,
+      "MatchesPlayed": 7,
+      "Wins": 6,
+      "Losses": 1,
+      "Draws": 0,
+      "RecentForm": [
+        "W",
+        "W",
+        "L",
+        "W",
+        "W"
+      ]
     },
     {
-      "Name": "Falcons"
+      "Name": "FaZe",
+      "VrsRating": 1018,
+      "MatchesPlayed": 7,
+      "Wins": 1,
+      "Losses": 6,
+      "Draws": 0,
+      "RecentForm": [
+        "L",
+        "L",
+        "W",
+        "L",
+        "L"
+      ]
     }
   ]
 }

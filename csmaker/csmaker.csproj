@@ -85,6 +85,8 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\GameData.cs" />
+    <Compile Include="Models\Map.cs" />
+    <Compile Include="Models\Match.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Models\Team.cs" />
     <Compile Include="Program.cs" />
@@ -96,8 +98,11 @@
     </Compile>
     <Compile Include="Services\CountryProvider.cs" />
     <Compile Include="Services\DataService.cs" />
+    <Compile Include="Services\MatchService.cs" />
+    <Compile Include="Services\MatchSimulator.cs" />
     <Compile Include="Services\RatingHelpers.cs" />
     <Compile Include="Services\ValidationService.cs" />
+    <Compile Include="Services\VrsRatingService.cs" />
     <Compile Include="TeamsFormOld.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +118,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="View\Dialogs\MovePlayerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\Forms\MainMenuForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\Forms\MatchSimulationForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="View\Forms\TeamsForm.cs">

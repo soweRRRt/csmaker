@@ -14,7 +14,7 @@ namespace csmaker
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TeamsForm());
+            Application.Run(new MainMenuForm());
         }
     }
 }

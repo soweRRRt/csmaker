@@ -16,6 +16,8 @@ public class AddPlayerDialog : Form
     private TextBox txtNickname;
     private ComboBox cmbCountry;
     private ComboBox cmbTeam;
+    private Button btnOK;
+    private Button btnCancel;
 
     public AddPlayerDialog(Team? currentTeam)
     {
@@ -26,7 +28,7 @@ public class AddPlayerDialog : Form
     private void InitializeUI()
     {
         this.Text = "Добавить игрока";
-        this.Size = new Size(400, 220);
+        this.Size = new Size(400, 280);
         this.StartPosition = FormStartPosition.CenterParent;
         this.FormBorderStyle = FormBorderStyle.FixedDialog;
         this.MaximizeBox = false;
@@ -36,7 +38,7 @@ public class AddPlayerDialog : Form
         {
             Text = "Никнейм:",
             Location = new Point(20, 20),
-            AutoSize = true
+            Size = new Size(340, 20)
         };
 
         txtNickname = new TextBox
@@ -48,13 +50,13 @@ public class AddPlayerDialog : Form
         var lblCountry = new Label
         {
             Text = "Страна:",
-            Location = new Point(20, 75),
-            AutoSize = true
+            Location = new Point(20, 80),
+            Size = new Size(340, 20)
         };
 
         cmbCountry = new ComboBox
         {
-            Location = new Point(20, 100),
+            Location = new Point(20, 105),
             Size = new Size(340, 25),
             DropDownStyle = ComboBoxStyle.DropDownList
         };
@@ -68,13 +70,13 @@ public class AddPlayerDialog : Form
         var lblTeam = new Label
         {
             Text = "Команда:",
-            Location = new Point(20, 130),
-            AutoSize = true
+            Location = new Point(20, 140),
+            Size = new Size(340, 20)
         };
 
         cmbTeam = new ComboBox
         {
-            Location = new Point(20, 155),
+            Location = new Point(20, 165),
             Size = new Size(340, 25),
             DropDownStyle = ComboBoxStyle.DropDownList
         };
@@ -87,38 +89,21 @@ public class AddPlayerDialog : Form
         else
             cmbTeam.SelectedIndex = 0;
 
-        var btnOK = new Button
+        btnOK = new Button
         {
             Text = "OK",
-            DialogResult = DialogResult.OK,
-            Location = new Point(190, 195),
-            Size = new Size(80, 30)
+            Location = new Point(190, 210),
+            Size = new Size(80, 30),
+            DialogResult = DialogResult.None
         };
+        btnOK.Click += BtnOK_Click;
 
-        var btnCancel = new Button
+        btnCancel = new Button
         {
             Text = "Отмена",
-            DialogResult = DialogResult.Cancel,
-            Location = new Point(280, 195),
-            Size = new Size(80, 30)
-        };
-
-        btnOK.Click += (s, e) =>
-        {
-            if (string.IsNullOrWhiteSpace(txtNickname.Text))
-            {
-                MessageBox.Show("Введите никнейм!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                this.DialogResult = DialogResult.None;
-                return;
-            }
-            PlayerNickname = txtNickname.Text.Trim();
-            PlayerCountry = cmbCountry.SelectedItem?.ToString() ?? "UA";
-
-            var teamName = cmbTeam.SelectedItem?.ToString();
-            SelectedTeam = teamName == "[Без команды]"
-                ? null
-                : DataService.Teams.FirstOrDefault(t => t.Name == teamName);
+            Location = new Point(280, 210),
+            Size = new Size(80, 30),
+            DialogResult = DialogResult.Cancel
         };
 
         this.Controls.AddRange(new Control[] {
@@ -127,5 +112,26 @@ public class AddPlayerDialog : Form
         });
         this.AcceptButton = btnOK;
         this.CancelButton = btnCancel;
+    }
+
+    private void BtnOK_Click(object sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(txtNickname.Text))
+        {
+            MessageBox.Show("Введите никнейм!", "Ошибка",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        PlayerNickname = txtNickname.Text.Trim();
+        PlayerCountry = cmbCountry.SelectedItem?.ToString() ?? "UA";
+
+        var teamName = cmbTeam.SelectedItem?.ToString();
+        SelectedTeam = teamName == "[Без команды]"
+            ? null
+            : DataService.Teams.FirstOrDefault(t => t.Name == teamName);
+
+        this.DialogResult = DialogResult.OK;
+        this.Close();
     }
 }

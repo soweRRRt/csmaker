@@ -1,5 +1,6 @@
 ﻿using csmaker.Models;
 using csmaker.Services;
+using csmaker.Utilities;
 using csmaker.View.Dialogs;
 using System;
 using System.Drawing;
@@ -51,23 +52,24 @@ public partial class TeamsForm : Form
         this.grpPlayers = new GroupBox();
 
         // grpTeams
-        this.grpTeams.Text = "Команды";
+        this.grpTeams.Text = "Команды (по рейтингу)";
         this.grpTeams.Location = new Point(12, 12);
-        this.grpTeams.Size = new Size(240, 500);
+        this.grpTeams.Size = new Size(280, 500);
 
         // lstTeams
         this.lstTeams.Location = new Point(10, 25);
-        this.lstTeams.Size = new Size(220, 410);
+        this.lstTeams.Size = new Size(260, 410);
         this.lstTeams.SelectedIndexChanged += LstTeams_SelectedIndexChanged;
+        this.lstTeams.Font = new Font("Consolas", 9F);
 
         // panelTeamActions
         this.panelTeamActions.Location = new Point(10, 440);
-        this.panelTeamActions.Size = new Size(220, 50);
+        this.panelTeamActions.Size = new Size(260, 50);
 
         // btnAddTeam
         this.btnAddTeam.Text = "➕ Добавить";
         this.btnAddTeam.Location = new Point(0, 0);
-        this.btnAddTeam.Size = new Size(105, 35);
+        this.btnAddTeam.Size = new Size(125, 35);
         this.btnAddTeam.Click += BtnAddTeam_Click;
         this.btnAddTeam.FlatStyle = FlatStyle.Flat;
         this.btnAddTeam.BackColor = Color.FromArgb(76, 175, 80);
@@ -76,8 +78,8 @@ public partial class TeamsForm : Form
 
         // btnDeleteTeam
         this.btnDeleteTeam.Text = "🗑️ Удалить";
-        this.btnDeleteTeam.Location = new Point(115, 0);
-        this.btnDeleteTeam.Size = new Size(105, 35);
+        this.btnDeleteTeam.Location = new Point(135, 0);
+        this.btnDeleteTeam.Size = new Size(125, 35);
         this.btnDeleteTeam.Click += BtnDeleteTeam_Click;
         this.btnDeleteTeam.FlatStyle = FlatStyle.Flat;
         this.btnDeleteTeam.BackColor = Color.FromArgb(244, 67, 54);
@@ -89,7 +91,7 @@ public partial class TeamsForm : Form
 
         // grpPlayers
         this.grpPlayers.Text = "Игроки команды";
-        this.grpPlayers.Location = new Point(265, 12);
+        this.grpPlayers.Location = new Point(305, 12);
         this.grpPlayers.Size = new Size(650, 500);
 
         // lblTeam
@@ -100,9 +102,10 @@ public partial class TeamsForm : Form
         this.lblTeam.ForeColor = Color.FromArgb(33, 150, 243);
 
         // lblTeamInfo
-        this.lblTeamInfo.AutoSize = true;
-        this.lblTeamInfo.Font = new Font("Segoe UI", 10F);
+        this.lblTeamInfo.AutoSize = false;
+        this.lblTeamInfo.Font = new Font("Segoe UI", 9F);
         this.lblTeamInfo.Location = new Point(15, 55);
+        this.lblTeamInfo.Size = new Size(620, 22);
         this.lblTeamInfo.Text = "";
         this.lblTeamInfo.ForeColor = Color.Gray;
 
@@ -177,7 +180,7 @@ public partial class TeamsForm : Form
         });
 
         // Form
-        this.ClientSize = new Size(930, 525);
+        this.ClientSize = new Size(970, 525);
         this.Controls.AddRange(new Control[] { grpTeams, grpPlayers });
         this.Text = "Управление командами и игроками";
         this.StartPosition = FormStartPosition.CenterScreen;
@@ -188,8 +191,19 @@ public partial class TeamsForm : Form
     private void LoadTeams()
     {
         lstTeams.Items.Clear();
-        foreach (var team in DataService.Teams)
-            lstTeams.Items.Add(team.Name);
+
+        // Сортируем команды по рейтингу (по убыванию)
+        var sortedTeams = DataService.Teams.OrderByDescending(t => t.VrsRating).ToList();
+
+        int position = 1;
+        foreach (var team in sortedTeams)
+        {
+            var rank = RatingHelpers.GetTeamRank(team.VrsRating);
+            var displayText = $"#{position} {team.Name} [{team.VrsRating}]";
+            lstTeams.Items.Add(displayText);
+            position++;
+        }
+
         lstTeams.Items.Add("[Без команды]");
     }
 
@@ -197,16 +211,58 @@ public partial class TeamsForm : Form
     {
         if (lstTeams.SelectedIndex < 0) return;
 
-        string teamName = lstTeams.SelectedItem.ToString();
-        Team? team = teamName == "[Без команды]" ? null : DataService.Teams.FirstOrDefault(t => t.Name == teamName);
+        string selectedText = lstTeams.SelectedItem.ToString();
 
-        lblTeam.Text = team == null ? "Игроки без команды" : $"Команда: {team.Name}";
+        // Извлекаем название команды
+        string teamName;
+        Team? team = null;
+
+        if (selectedText == "[Без команды]")
+        {
+            teamName = "[Без команды]";
+        }
+        else
+        {
+            // Формат: "#1 Natus Vincere [1850]"
+            // Убираем позицию (#1) и рейтинг ([1850])
+            var withoutPosition = selectedText.Substring(selectedText.IndexOf(' ') + 1); // Убираем "#1 "
+            var bracketIndex = withoutPosition.LastIndexOf('[');
+            teamName = bracketIndex > 0 ? withoutPosition.Substring(0, bracketIndex).Trim() : withoutPosition.Trim();
+
+            team = DataService.Teams.FirstOrDefault(t => t.Name == teamName);
+        }
+
+        if (team == null)
+        {
+            lblTeam.Text = "Игроки без команды";
+            var freeAgents = DataService.Players.Count(p => p.Team == null);
+            lblTeamInfo.Text = $"Игроков: {freeAgents}";
+        }
+        else
+        {
+            lblTeam.Text = $"Команда: {team.Name}";
+
+            // Формируем детальную информацию о команде
+            var rank = RatingHelpers.GetTeamRank(team.VrsRating);
+            var position = RatingHelpers.GetTeamPosition(team);
+            var formStr = team.RecentForm.Count > 0
+                ? string.Join("-", team.RecentForm)
+                : "Нет матчей";
+
+            lblTeamInfo.Text = $"#{position} • {rank} • VRS: {team.VrsRating} • " +
+                             $"Игроков: {team.Players.Count}/5 • " +
+                             $"Матчей: {team.MatchesPlayed} • " +
+                             $"W/L/D: {team.Wins}/{team.Losses}/{team.Draws} • " +
+                             $"WR: {team.WinRate:F1}% • " +
+                             $"Форма: {formStr}";
+
+            // Применяем цвет к lblTeam в зависимости от рейтинга
+            lblTeam.ForeColor = RatingHelpers.GetRatingColor(team.VrsRating);
+        }
 
         var players = team == null
             ? DataService.Players.Where(p => p.Team == null).ToList()
             : team.Players;
-
-        lblTeamInfo.Text = $"Игроков: {players.Count}" + (team != null ? $" / 5" : "");
 
         lvPlayers.Items.Clear();
         imgCountries.Images.Clear();
@@ -236,18 +292,16 @@ public partial class TeamsForm : Form
         var dialog = new AddTeamDialog();
         if (dialog.ShowDialog() == DialogResult.OK)
         {
-            if (DataService.Teams.Any(t => t.Name.Equals(dialog.TeamName, StringComparison.OrdinalIgnoreCase)))
-            {
-                MessageBox.Show("Команда с таким названием уже существует!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
             var team = new Team { Name = dialog.TeamName };
             DataService.Teams.Add(team);
             DataService.Save();
             LoadTeams();
-            lstTeams.SelectedItem = dialog.TeamName;
+
+            // Выбираем новую команду в списке
+            var newTeamDisplay = lstTeams.Items.Cast<string>()
+                .FirstOrDefault(item => item.Contains(dialog.TeamName));
+            if (newTeamDisplay != null)
+                lstTeams.SelectedItem = newTeamDisplay;
         }
     }
 
@@ -255,11 +309,29 @@ public partial class TeamsForm : Form
     {
         if (lstTeams.SelectedIndex < 0) return;
 
-        string teamName = lstTeams.SelectedItem.ToString();
-        if (teamName == "[Без команды]") return;
+        string selectedText = lstTeams.SelectedItem.ToString();
+        if (selectedText == "[Без команды]") return;
+
+        // Извлекаем название команды
+        string teamName;
+        try
+        {
+            var withoutPosition = selectedText.Substring(selectedText.IndexOf(' ') + 1);
+            var bracketIndex = withoutPosition.LastIndexOf('[');
+            teamName = bracketIndex > 0 ? withoutPosition.Substring(0, bracketIndex).Trim() : withoutPosition.Trim();
+        }
+        catch
+        {
+            MessageBox.Show("Ошибка при определении команды", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
 
         var team = DataService.Teams.FirstOrDefault(t => t.Name == teamName);
-        if (team == null) return;
+        if (team == null)
+        {
+            MessageBox.Show($"Команда '{teamName}' не найдена!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
 
         var result = MessageBox.Show(
             $"Удалить команду '{team.Name}'?\nИгроки команды станут свободными агентами.",
@@ -269,13 +341,19 @@ public partial class TeamsForm : Form
 
         if (result == DialogResult.Yes)
         {
+            // Сначала удаляем игроков из команды
             foreach (var player in team.Players.ToList())
             {
                 team.RemovePlayer(player);
             }
+
+            // Затем удаляем саму команду
             DataService.Teams.Remove(team);
             DataService.Save();
             LoadTeams();
+
+            MessageBox.Show($"Команда '{team.Name}' успешно удалена!", "Успех",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 
@@ -284,9 +362,14 @@ public partial class TeamsForm : Form
         Team? currentTeam = null;
         if (lstTeams.SelectedIndex >= 0)
         {
-            string teamName = lstTeams.SelectedItem.ToString();
-            if (teamName != "[Без команды]")
+            string selectedText = lstTeams.SelectedItem.ToString();
+            if (selectedText != "[Без команды]")
+            {
+                var withoutPosition = selectedText.Substring(selectedText.IndexOf(' ') + 1);
+                var bracketIndex = withoutPosition.LastIndexOf('[');
+                var teamName = bracketIndex > 0 ? withoutPosition.Substring(0, bracketIndex).Trim() : withoutPosition.Trim();
                 currentTeam = DataService.Teams.FirstOrDefault(t => t.Name == teamName);
+            }
         }
 
         var dialog = new AddPlayerDialog(currentTeam);
@@ -357,12 +440,14 @@ public partial class TeamsForm : Form
 
             if (dialog.SelectedTeam != null)
             {
-                if (dialog.SelectedTeam.Players.Count >= 5)
+                var canAddResult = ValidationService.CanAddPlayerToTeam(dialog.SelectedTeam, player);
+                if (!canAddResult.IsValid)
                 {
-                    MessageBox.Show("В команде уже 5 игроков!", "Ошибка",
+                    MessageBox.Show(canAddResult.Message, "Ошибка",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
                 dialog.SelectedTeam.AddPlayer(player);
             }
 
