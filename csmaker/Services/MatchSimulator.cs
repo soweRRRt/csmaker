@@ -196,12 +196,13 @@ public class MatchSimulator
         int team1Rounds = 0;
         int team2Rounds = 0;
 
+        // Максимум 12 раундов в тайме
         for (int round = 0; round < 12; round++)
         {
-            // Проверяем, не выиграл ли кто-то уже 13 раундов (ИСПРАВЛЕНО)
+            // КРИТИЧЕСКАЯ ПРОВЕРКА: если кто-то уже набрал 13 раундов - останавливаемся
             int totalTeam1 = currentTeam1Score + team1Rounds;
             int totalTeam2 = currentTeam2Score + team2Rounds;
-            
+
             if (totalTeam1 >= 13 || totalTeam2 >= 13)
                 break;
 
@@ -212,6 +213,13 @@ public class MatchSimulator
                 team1Rounds++;
             else
                 team2Rounds++;
+
+            // ПРОВЕРКА СРАЗУ ПОСЛЕ РАУНДА: если кто-то достиг 13 - останавливаемся
+            totalTeam1 = currentTeam1Score + team1Rounds;
+            totalTeam2 = currentTeam2Score + team2Rounds;
+
+            if (totalTeam1 >= 13 || totalTeam2 >= 13)
+                break;
         }
 
         return (team1Rounds, team2Rounds);
@@ -245,6 +253,11 @@ public class MatchSimulator
                 team1Rounds++;
             else
                 team2Rounds++;
+
+            // ПРОВЕРКА СРАЗУ ПОСЛЕ РАУНДА: если кто-то достиг целевого счета - останавливаемся
+            if (currentTeam1Score + team1Rounds >= targetScore ||
+                currentTeam2Score + team2Rounds >= targetScore)
+                break;
         }
 
         return (team1Rounds, team2Rounds);
@@ -271,7 +284,7 @@ public class MatchSimulator
             double ctPenalty = (ctAdvantage - 0.5) * 0.4;
             team1RoundWinChance = team1WinProb - ctPenalty;
         }
-        
+
         // Добавляем случайность в каждом раунде (ПОСЛЕ базового расчета)
         double randomFactor = (Random.NextDouble() - 0.5) * 0.15; // ±7.5%
         team1RoundWinChance += randomFactor;

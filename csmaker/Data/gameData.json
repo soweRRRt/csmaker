@@ -54,32 +54,32 @@
   "Teams": [
     {
       "Name": "Dream Wave",
-      "VrsRating": 1111,
-      "MatchesPlayed": 7,
-      "Wins": 6,
-      "Losses": 1,
+      "VrsRating": 1223,
+      "MatchesPlayed": 19,
+      "Wins": 15,
+      "Losses": 4,
       "Draws": 0,
       "RecentForm": [
         "W",
         "W",
-        "L",
         "W",
-        "W"
+        "W",
+        "L"
       ]
     },
     {
       "Name": "FaZe",
-      "VrsRating": 1018,
-      "MatchesPlayed": 7,
-      "Wins": 1,
-      "Losses": 6,
+      "VrsRating": 1089,
+      "MatchesPlayed": 19,
+      "Wins": 4,
+      "Losses": 15,
       "Draws": 0,
       "RecentForm": [
         "L",
         "L",
-        "W",
         "L",
-        "L"
+        "L",
+        "W"
       ]
     }
   ]
